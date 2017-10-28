@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/AMFDPMTE/list"
 	_ "github.com/mattn/go-sqlite3"
@@ -22,8 +23,8 @@ func main() {
 
 	// insert some data
 	stmt, err := db.Prepare(`
-	INSERT INTO lists(name, slug, list)
-	VALUES (?, ?, ?)
+	INSERT INTO lists(name, slug, list, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?)
 	`)
 
 	if err != nil {
@@ -31,9 +32,10 @@ func main() {
 	}
 
 	for i := 0; i < 10; i++ {
-		name, slug, listBlob := uuid.NewV4().String(), uuid.NewV4().String(), []byte{}
-		fmt.Println(name, slug)
-		result, err := stmt.Exec(name, slug, listBlob)
+		name, slug, listBlob, createdAt, updatedAt := uuid.NewV4().String(),
+			uuid.NewV4().String(), []byte{0x0005, 0x0006}, time.Now().UTC(),
+			time.Now().UTC()
+		result, err := stmt.Exec(name, slug, listBlob, createdAt, updatedAt)
 		if err != nil {
 			panic(err)
 		}
