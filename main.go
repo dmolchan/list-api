@@ -33,7 +33,7 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		name, slug, listBlob, createdAt, updatedAt := uuid.NewV4().String(),
-			uuid.NewV4().String(), []byte{0x0005, 0x0006}, time.Now().UTC(),
+			uuid.NewV4().String(), []byte{}, time.Now().UTC(),
 			time.Now().UTC()
 		result, err := stmt.Exec(name, slug, listBlob, createdAt, updatedAt)
 		if err != nil {
