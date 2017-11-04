@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/AMFDPMTE/list"
+	"github.com/AMFDPMTE/list-api/api"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/satori/go.uuid"
 )
@@ -40,7 +42,10 @@ func main() {
 	}
 
 	// select
-	stmt, err = db.Prepare("SELECT * FROM lists")
+	stmt, err = db.Prepare(`
+		SELECT id, name, slug, list, description, created_at, updated_at
+		FROM lists
+	`)
 	if err != nil {
 		panic(err)
 	}
@@ -50,6 +55,23 @@ func main() {
 	}
 
 	for rows.Next() {
-		fmt.Println(rows.Columns())
+		var id int
+		var name string
+		var slug string
+		var list []byte
+		var description *string
+		var createdAt time.Time
+		var updatedAt time.Time
+
+		err = rows.Scan(&id, &name, &slug, &list, &description, &createdAt,
+			&updatedAt)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("ROW=", id, name, slug, list, description, createdAt, updatedAt)
 	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/lists", api.ListHandler{DB: db})
+	http.ListenAndServe(":8080", mux)
 }
